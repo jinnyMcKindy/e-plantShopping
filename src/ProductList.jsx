@@ -1,15 +1,18 @@
-import React, { useState  } from 'react';
+import React, { useEffect, useState  } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { addItem } from './CartSlice';
+import AboutUs from './AboutUs';
 
 function ProductList() {
     const [showCart, setShowCart] = useState(false); 
-    const [showPlants, setShowPlants] = useState(false);
+    const [showPlants, setShowPlants] = useState(true);
+    const [showAbout, setShowAbout] = useState(false);
     const [addedToCart, setAddedToCart] = useState({});
     const dispatch = useDispatch();
     const itemsInCart = useSelector((state) => state.cart.total);
+
 
     const handleAddToCart = (product) => {
         dispatch(addItem(product));
@@ -249,15 +252,24 @@ function ProductList() {
     const handleCartClick = (e) => {
     e.preventDefault();
         setShowCart(true); // Set showCart to true when cart icon is clicked
+        setShowPlants(false); // Hide the plants when navigating to cart
+        setShowAbout(false); // Hide the about us when navigating to cart
     };
     const handlePlantsClick = (e) => {
         e.preventDefault();
         setShowPlants(true); // Set showAboutUs to true when "About Us" link is clicked
         setShowCart(false); // Hide the cart when navigating to About Us
+        setShowAbout(false); // Hide the about us when navigating to plants
     };
+    const handleAboutClick = (e) => { 
+        setShowAbout(true); // Set showAboutUs to true when "About Us" link is clicked
+        setShowPlants(false); // Hide the plants when navigating to About Us
+        setShowCart(false); // Hide the cart when navigating to About Us
+    }
    const handleContinueShopping = (e) => {
     e.preventDefault();
     setShowCart(false);
+    setShowPlants(true);
   };
   const updateProduct = (name, number) => {
     setAddedToCart((prevState) => ({
@@ -282,6 +294,7 @@ function ProductList() {
             </div>
             <div style={styleObjUl}>
                 <div> <a href="#" onClick={(e)=>handlePlantsClick(e)} style={styleA}>Plants</a></div>
+                <div> <a href="#" onClick={(e)=>handleAboutClick(e)} style={styleA}>About Us</a></div>
                 <div> <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
                     <h1 className='cart'>
                        { itemsInCart ? <p className="cart_quantity_count">{itemsInCart}</p> : null }
@@ -290,29 +303,33 @@ function ProductList() {
                         </path></svg>
                         </h1></a></div>
             </div>
-        </div>
-        {!showCart ? (
-                plantsArray.map((category, index) => (
-                    <div key={index} className='product-grid'>
-                        <h1>{category.category}</h1>
-                        <div className='product-list'>
-                            {category.plants.map((plant, idx) => (
-                                <div key={idx} className="product-card">
-                                    <img className="product-image" src={plant.image} alt={plant.name} />
-                                    <div className='product-title'>{plant.name}</div>
-                                    <div>{plant.description}</div>
-                                    <p className="product-price">{plant.cost}</p>
-                                    { !addedToCart[plant.name] ? <button className='product-button' onClick={() => handleAddToCart(plant)}>Add to Cart</button> :
-                                    <button disabled="true" className='product-button added-to-cart' >Added to Cart</button>}
+            </div>
+                {showPlants ? (
+                        plantsArray.map((category, index) => (
+                            <div key={index} className='product-grid'>
+                                <h1>{category.category}</h1>
+                                <div className='product-list'>
+                                    {category.plants.map((plant, idx) => (
+                                        <div key={idx} className="product-card">
+                                            <img className="product-image" src={plant.image} alt={plant.name} />
+                                            <div className='product-title'>{plant.name}</div>
+                                            <div>{plant.description}</div>
+                                            <p className="product-price">{plant.cost}</p>
+                                            { !addedToCart[plant.name] ? <button className='product-button' onClick={() => handleAddToCart(plant)}>Add to Cart</button> :
+                                            <button disabled="true" className='product-button added-to-cart' >Added to Cart</button>}
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                ))
- ) :  (
-    <CartItem onContinueShopping={handleContinueShopping} onUpdateProduct={updateProduct}/>
-)}
-    </div>
+                            </div>
+                        ))
+                ) : null }
+                { showCart ? (
+                    <CartItem onContinueShopping={handleContinueShopping} onUpdateProduct={updateProduct}/>
+                ) : null }
+                 { showAbout ? (
+                    <AboutUs />
+                ): null }
+        </div>
     );
 }
 
